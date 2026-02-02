@@ -1,6 +1,5 @@
 import streamlit as st
 from groq import Groq
-import os
 
 # ---------------- CONFIG ----------------
 st.set_page_config(
@@ -9,85 +8,59 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- API KEY ----------------
+# ❗ Replace with YOUR NEW key locally
+GROQ_API_KEY = "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"
+
+client = Groq(api_key=GROQ_API_KEY)
+
+# ---------------- UI STYLE ----------------
 st.markdown("""
 <style>
-.chat-container {
-    max-width: 700px;
-    margin: auto;
-}
-.user-msg {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
+.user {
+    background: #4f46e5;
     color: white;
     padding: 12px;
     border-radius: 14px;
     margin: 8px 0;
     text-align: right;
 }
-.bot-msg {
+.bot {
     background: #1f2937;
     color: #e5e7eb;
     padding: 12px;
     border-radius: 14px;
     margin: 8px 0;
 }
-.header {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-}
-.sub {
-    text-align: center;
-    color: #9ca3af;
-}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- HEADER ----------------
-st.markdown("<div class='header'>⚡ Groq AI Chatbot</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub'>Powered by LLaMA 3</div>", unsafe_allow_html=True)
-st.divider()
+st.title("⚡ Groq Chatbot")
 
-# ---------------- API KEY ----------------
-groq_api_key = os.environ.get("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")
-
-if not groq_api_key:
-    st.error("❌ GROQ_API_KEY environment variable not set")
-    st.stop()
-
-client = Groq(api_key=groq_api_key)
-
-# ---------------- SESSION STATE ----------------
+# ---------------- SESSION ----------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # ---------------- CHAT DISPLAY ----------------
-st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
-
 for msg in st.session_state.messages:
     if msg["role"] == "user":
-        st.markdown(f"<div class='user-msg'>{msg['content']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='user'>{msg['content']}</div>", unsafe_allow_html=True)
     else:
-        st.markdown(f"<div class='bot-msg'>{msg['content']}</div>", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='bot'>{msg['content']}</div>", unsafe_allow_html=True)
 
 # ---------------- INPUT ----------------
-user_input = st.chat_input("Type your message...")
+prompt = st.chat_input("Type your message...")
 
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=st.session_state.messages
     )
 
-    bot_reply = response.choices[0].message.content
-    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+    reply = response.choices[0].message.content
+    st.session_state.messages.append({"role": "assistant", "content": reply})
 
     st.rerun()
 
-# ---------------- FOOTER ----------------
-st.divider()
-st.caption("Built with Streamlit + Groq ⚡")
