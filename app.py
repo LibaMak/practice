@@ -49,7 +49,7 @@ st.markdown("<div class='sub'>Powered by LLaMA 3</div>", unsafe_allow_html=True)
 st.divider()
 
 # ---------------- API KEY ----------------
-groq_api_key = os.environ.get("GROQ_API_KEY")
+groq_api_key = os.environ.get("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")
 
 if not groq_api_key:
     st.error("❌ GROQ_API_KEY environment variable not set")
